@@ -525,6 +525,16 @@ extern "C" fn kernel_init(hart_id: u64, fdt_addr: u64) {
                                         end: addr + len,
                                     });
                                 }
+                                RemoveMmioRegion { addr, len } => {
+                                    if mmio_region
+                                        .as_ref()
+                                        .filter(|r| r.start == addr && r.end == (addr + len))
+                                        .is_none()
+                                    {
+                                        panic!("GuestVm removing an invalid MMIO region.");
+                                    }
+                                    mmio_region = None;
+                                }
                                 ShareMemory { addr, len } => {
                                     if shared_mem_region.is_some() {
                                         panic!("GuestVm already set a shared memory region");
